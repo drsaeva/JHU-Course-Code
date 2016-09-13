@@ -25,7 +25,6 @@ public class Passenger {
 	/**
 	 * Parses data about a Passenger that will ride the elevator.
 	 *  Sets properties with extracted data values.
-	 *  
 	 * @param input the String from which Passenger data is derived
 	 * @see #setName(String)
 	 * @see #setFloorIn(int)
