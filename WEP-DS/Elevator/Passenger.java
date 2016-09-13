@@ -1,6 +1,6 @@
 /**
  * Class: Passenger
- * Properties: name, floorIn, floorOut
+ * Properties: name, floorIn, floorOut, tempExits
  * Methods: getPassengersFromInput, parameter setters/getters
  * 
  * Implementation of passenger class for elevator passengers
@@ -12,9 +12,10 @@ package Elevator;
 
 public class Passenger {
 	
-	private String name;	//passenger name
-	private int floorIn;	//floor passenger entered elevator
-	private int floorOut;	//floor passenger exited elevator
+	private String name;		//passenger name
+	private int floorIn = 0;	//floor passenger entered elevator
+	private int floorOut = 0;	//floor passenger exited elevator
+	private int tempExits = 0;	//times passenger exited temporarily before destination
 	
 	public Passenger(String input) {
 		getPassengerFromInput(input);
@@ -29,8 +30,8 @@ public class Passenger {
 	private void getPassengerFromInput(String input) {
 		
 		StringBuilder charsInName = new StringBuilder();
-		floorIn = 0;
-		floorOut = 0;
+		;
+		;
 		
 		for (char c : input.toCharArray()) {	//iterate over each character in the input String
 			
@@ -93,6 +94,22 @@ public class Passenger {
 	 */
 	public int getFloorOut() {
 		return floorOut;
+	}
+	
+	/**
+	 * Method incrementTempExits
+	 * Adds 1 to the tempExits counter for that passenger
+	 */
+	public void incrementTempExits() {
+		tempExits++;
+	}
+	
+	/**
+	 * Method getTempExits
+	 * @return tempExits
+	 */
+	public int getTempExits() {
+		return tempExits;
 	}
 	
 }
