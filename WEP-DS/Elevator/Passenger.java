@@ -1,10 +1,5 @@
 /**
- * Class: Passenger
- * Properties: name, floorIn, floorOut, tempExits
- * Methods: getPassengersFromInput, parameter setters/getters
- * 
- * Implementation of passenger class for elevator passengers
- * 
+ * Represents a passenger on an elevator.
  * @author David Saeva
  */
 
@@ -18,27 +13,32 @@ public class Passenger {
 	private int tempExits = 0;	//times passenger exited temporarily before destination
 	
 	/**
-	 * Constructor Passenger
-	 * @param input
-	 * Instantiates new Passenger object with property values derived from input String
+	 * Class Constructor for Passenger. Creates new Passenger with 
+	 * 	property values derived from input.
+	 * @param input the String from which Passenger data is derived
+	 * @see #getPassengerFromInput(String)
 	 */
 	public Passenger(String input) {
 		getPassengerFromInput(input);
 	}
 	
 	/**
-	 * Method getPassengerFromInput 
-	 * @param input
-	 * Parses class property values from input string and calls respective setters
+	 * Parses data about a Passenger that will ride the elevator.
+	 *  Sets properties with extracted data values.
+	 *  
+	 * @param input the String from which Passenger data is derived
+	 * @see #setName(String)
+	 * @see #setFloorIn(int)
+	 * @see #setFloorOut(int)
 	 */
 	private void getPassengerFromInput(String input) {
 		
-		StringBuilder charsInName = new StringBuilder();
+		StringBuilder newName = new StringBuilder();
 		
 		for (char c : input.toCharArray()) {	//iterate over each character in the input String
 			
 			if (Character.isAlphabetic(c)) {	//make name char array from alpha chars
-				charsInName.append(c);
+				newName.append(c);
 			
 			} else if (Character.isDigit(c) && floorIn <= 0) {	//store 1st digit as floorIn
 				setFloorIn(Character.getNumericValue(c));
@@ -47,75 +47,68 @@ public class Passenger {
 				setFloorOut(Character.getNumericValue(c));
 			}
 		}
-		setName(charsInName.toString());	//stringify name char array and assign to name property
+		setName(newName.toString());	//stringify name char array and assign to name property
 	}
 	
 	/**
-	 * Method setName
-	 * @param inputName
-	 * Sets passenger property for name from input String
+	 * Sets the Passenger's name to the input String.
+	 * @param name {@link #name}
 	 */
-	private void setName(String inputName){
-		name = inputName;
+	private void setName(String name){
+		this.name = name;
 	}
 	
 	/**
-	 * Method getName
-	 * @return name
-	 * Returns passenger property for name
+	 * Gets the name of this Passenger.
+	 * @return {@link #name}
 	 */
 	public String getName() {
 		return name;
 	}
 	
 	/**
-	 * Method setFloorIn
-	 * @param h
-	 * Sets passenger property for floor entered from input int
+	 * Sets the floor the Passenger entered the elevator.
+	 * @param floorIn {@link #floorIn}
 	 */
-	private void setFloorIn(int h) {
-		floorIn = h;
+	private void setFloorIn(int floorIn) {
+		this.floorIn = floorIn;
 	}
 	
 	/**
-	 * Method getFloorIn
-	 * @return floorIn
-	 * Returns passenger property for floor entered
+	 * Gets the floor the Passenger entered the elevator.
+	 * @return {@link #floorIn}
 	 */
 	public int getFloorIn() {
 		return floorIn;
 	}
 	
 	/**
-	 * Method setFloorOut
-	 * @param i
-	 * Sets passenger property for floor exited from input int
+	 * Sets the floor this Passenger will exit the elevator.
+	 * @param floorOut {@link #floorOut}
 	 */
-	private void setFloorOut(int i) {
-		floorOut = i;
+	private void setFloorOut(int floorOut) {
+		this.floorOut = floorOut;
 	}
 	
 	/**
-	 * Method getFloorOut
-	 * @return floorOut
-	 * Returns passenger property for floor exited
+	 * Gets the floor this Passenger will exit the elevator.
+	 * @return {@link #floorOut}
 	 */
 	public int getFloorOut() {
 		return floorOut;
 	}
 	
 	/**
-	 * Method incrementTempExits
-	 * Adds 1 to the tempExits counter for passenger
+	 * Adds 1 to the number of times this Passenger temporarily exited the elevator.
+	 * {@link #tempExits}
 	 */
 	public void incrementTempExits() {
-		tempExits++;
+		this.tempExits++;
 	}
 	
 	/**
-	 * Method getTempExits
-	 * @return tempExits
-	 * Returns current number of times passenger has temporarily exited
+	 * Gets the number of times this Passenger has temporarily exited the elevator.
+	 * @return {@link #tempExits}
 	 */
 	public int getTempExits() {
 		return tempExits;
