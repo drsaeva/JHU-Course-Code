@@ -5,9 +5,9 @@ public class PassengerStack {
 /**
  * Class: PassengerStack
  * Variables: currentPassengers, passengerLimit, front
- * Methods: PassengerStack, push, pop, peek, numberOfPassenges, isEmpty
+ * Methods: PassengerStack, push, pop, peek, numberOfPassengers, isEmpty
  * 
- * Implementation of a stack specific to passengers entering/leaving an elevator
+ * Implementation of a stack that holds passengers entering/leaving an elevator
  * 
  * @author David Saeva
  */
