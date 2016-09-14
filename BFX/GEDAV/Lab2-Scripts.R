@@ -6,6 +6,8 @@
 #   Yeast Saccharomyces cerevisiae by Microarray Hybridization”
 #   Mol Biol Cell. 1998 Dec; 9(12): 3273–3297. PMCID: PMC25624
 
+# Written by David Saeva, but referencing code written by B. Higgs
+
 
 # Read in file, isolate cdc15 experiment-specific data
 spell <- read.table("E:/R_Data/spellman.txt", header=TRUE, row.names=1)
