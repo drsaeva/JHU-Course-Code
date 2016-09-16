@@ -47,3 +47,26 @@ for(i in 1:length(vps8)) {
     cdc15.y <- as.numeric(vps8)
     lines(c(1:ncol(cdc15)), cdc15.y, col=i, lwd=2)
 }
+
+# Generate R Shiny app with reactive plot for comparing time points against each other
+# UI
+ui < - fluidPage(
+    headerPanel('Time-dependent relative gene expression in a cdc15 mutant yeast strain'),
+    sidebarPanel(
+        selectInput('xcol', 'X Variable', names(cdc15), selected=names(cdc15[[2]]),
+        selectInput('ycol', 'Y Variable', names(cdc15), selected=names(cdc15[[2]]),
+    ),
+    mainPanel(plotOutput('plot'))
+)
+
+# Server
+server <- function(input, output) {
+    output$plot <- renderPlot({
+        par(mar=c(5.1, 4.1, 0, 1))
+        plot(selectedData(), col="#FF3333", pch=1, cex=1)
+        points(selectedData(), pch=1, cex=1, lwd=1)
+    })
+}
+
+# Start Server
+shinyApp(ui=ui, server=server)
