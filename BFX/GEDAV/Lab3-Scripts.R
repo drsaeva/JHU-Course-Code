@@ -19,7 +19,7 @@ eisCla <- read.table("E:/R_Data/eisenClasses.txt", header=T)
 eisCl.char <- as.character(eiCl[, 2])
 eis.sub <- eis[, eisCl.char]
 
-# Generate boxplot comparing gene 2468 exoression for the two DLBCL classes 
+# Generate boxplot comparing gene 2468 expression for the two DLBCL classes 
 # Classes are created by merging individual samples associated with each class
 # NA values are removed without replacement
 
