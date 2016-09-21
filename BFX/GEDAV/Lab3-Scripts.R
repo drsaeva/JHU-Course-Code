@@ -66,3 +66,23 @@ dif <- abs(mean(num.gc.2468)-mean(num.abc.2468))/sqrt(pvar)
 # Sample size calc with empirically-determined delta
 ss <- pwr.t.test(d=dif, sig.level=.01, power=0.8, type="two.sample")
 
+# Generate histogram of standard deviations of genes in data set
+# Calculate std devs
+eis.sub.sd <- sapply(eis.sub, sd, na.rm=T)
+
+# Hist plot of the distribution of the st. devs 
+hist(eis.sub.sd, n=40, col="orange", border="red", main="", xlab="Standard Deviation (for data on the log2
++ scale)")
+title("Histogram of Standard Deviations for ~13,000 genes")
+
+# Calculate and plot a proportion of genes vs. sample size graph to get an idea of the number of genes 
+# that have an adequate sample size for confidence=95%, effect size=3 (log2 transform for the function), 
+# and power=80%.
+all.size <- ssize(sd=eis.sub.sd, delta=log2(3), sig.level=0.05, power=0.8)
+ssize.plot(all.size, lwd=2, col="blue", xlim=c(1,20))
+xmax <- par("usr")[2]-1;
+ymin <- par("usr")[3] + 0.05
+
+legend(x=xmax, y=ymin, legend= strsplit( paste("fold change=",3,",", "alpha=", 0.05, ",",
+"power=",power,",", "# genes=", length(eis.sub.sd), sep=''), "," )[[1]], xjust=1, yjust=0, cex=1.0)
+title("Sample Size to Detect 3-Fold Change")
