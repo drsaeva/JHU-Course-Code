@@ -1,3 +1,7 @@
+/**
+ *  DEPRECATED - do not use
+ * /
+
 package Elevator;
 
 public class PassengerStack {
