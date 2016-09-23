@@ -26,13 +26,23 @@ public class ProcessInputLines {
 		
 		getFile = new Scanner(System.in);
 		try {
-			while(getFile.hasNext()) {
+			if(getFile.hasNext()) {
 				filePath = getFile.nextLine();
 			}
 			
 			File inputFile = new File(filePath);
 			readFile = new Scanner(inputFile);
-			
+			if (readFile.hasNextLine()) {
+				System.out.println("file read!");
+				
+				if (!checkFileHeader(readFile.nextLine())) {
+					System.out.println("No header found in this file - this file "
+							+ "is invalid for this simulation.");
+					System.exit(1);
+				}
+			} else {
+				System.out.println("file read error");
+			}
 		} catch (FileNotFoundException e) {
 			System.out.println("The file path provided is invalid. Please try again.");
 			
@@ -40,26 +50,36 @@ public class ProcessInputLines {
 	}
 	
 	/**
-	 * Method checkFileHeader
-	 * @param input
-	 * Checks string/line for header comment (double forward slash), returns true if present
+	 * States whether string/line has header comment (double forward slash)
+	 * @param input String/line
+	 * @return true if '//' is found in line
+	 * 				 false otherwise
 	 */
-	
 	private boolean checkFileHeader (String input) {
 		if (input.contains("//")) {
 			return true;
+		} else {
+			return false;
 		}
-		return false;
 	}
 	
 	public String getLineFromInput() {
 		while (readFile.hasNext()) {
-			if (!readFile.nextLine().contains("/")) {
-				return readFile.nextLine();
+			String line = readFile.nextLine();
+			if (!checkFileHeader(line)) {
+				return line;
 			}
 		}
 		String invalid = new String("");
 		return invalid;
+	}
+	
+	public boolean inputHasNext() {
+		if (readFile.hasNext()) {
+			return true;
+		} else {
+			return false;
+		}
 	}
 	
 	public void closeFile() {
