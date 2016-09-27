@@ -1,50 +1,48 @@
-/*
- * TODO needs to handle input indirectly from ProcessInputLines in a string-by-string fashion
- * 				PIL should locally assign a line to a string
- * 			needs code to assess floorButtons bool values and perform stops or skip floors
- * 				ie - 2nd floor, going up, floorButton[2] = F (no one to 3rd) & floorButton[3] = T
- * 			re-examine 'at each floor' reqs in Lab1 document
- * 			see elevatorRoute method
- */
 package Elevator;
 
 public class Elevator {
 	
 	private int currentFloor = 1;												// Current floor the elevator is stopped at
-	private int numPassengers = 0;											// Total number of passengers who used this elevator
 	boolean goingUp = true;															// Whether the elevator is heading upwards
-	boolean[] floorButtons = new boolean[5];					// 5-element boolean array in which each element represents
-																											// 		a button in the elevator for a specific floor
 	String[] floorNames = {"1st", "2nd", "3rd", 				// 5-element String array with floor names
 			"4th", "5th" };
+	
+	Stack<Passenger> elev = new Stack<Passenger>(5);		// Stack representing the space within the elevator
+	Stack<Passenger> hallway = new Stack<Passenger>(5);	// Stack representing the hallway passengers temporarily
+																											//	exit into 
 	
 	/**
 	 * 
 	 * @param input 
 	 */
-	public Elevator(ProcessInputLines input) {
-		Stack<Passenger> elev = new Stack<Passenger>(5);
-		Stack<Passenger> hallway = new Stack<Passenger>(5);
-		System.out.println("This is a new elevator!");
-		elevatorRoute(input);
-		
-		
+	public Elevator(Stack<Passenger> data) {
+		while (!data.isEmpty()) {	
+			if (!elev.isEmpty()) {
+				checkPassFloor(currentFloor);
+			}
+			
+			while (checkIncomingPass(data)) {
+						newPassenger(data);
+			
+			}
+			
+			elevatorRoute();
+		}
+		checkPassFloor(currentFloor);
+		elevatorRoute();
+		System.out.println("Simulation complete.");
 	}
+	
+
 	
 	/**
 	 * 
 	 * @param elev1 Stack representing the passengers in the elevator
 	 * @param input	Utility object for managing file input for simulation
 	 */
-	// TODO needs to keep running so long as there are passengers present in the hallway or on the elevator
-	// 		  should not rely on ProcessInputLines in order to allow for multiple elevators
-	public void elevatorRoute (ProcessInputLines input) {
-		while (input.inputHasNext()) {
-		//for (int i=1; i<50; i++) {
-			//System.out.println(input.getLineFromInput());
+	public void elevatorRoute () {
 			currentFloor+=changeFloor(goingUp);
 			setDirection(currentFloor);
-		}
 	}
 	
 	/**
@@ -57,12 +55,12 @@ public class Elevator {
 	private int changeFloor(boolean goingUp) {
 		if (goingUp) {
 			System.out.println(floorNames[currentFloor-1]+" floor! Next stop, " 
-		+floorNames[currentFloor] + " floor! Going up!");
+		+floorNames[currentFloor] + " floor! Going up!\n");
 			return 1;	
 			
 		} else {
 			System.out.println(floorNames[currentFloor-1]+" floor! Next stop, " 
-		+floorNames[currentFloor-2] + " floor! Going down!");
+		+floorNames[currentFloor-2] + " floor! Going down!\n");
 			
 			return -1;
 		}
@@ -88,30 +86,45 @@ public class Elevator {
 	 * @param hallway Hallway into which passengers exit the elevator
 	 * @param floor 
 	 */
-	private void checkPassFloor(Stack<Passenger> elev, Stack<Passenger> hallway, int floor) {
-		for (int i=0; i<elev.size(); i++) {							// Iterate over passengers in elevator
-			hallway.push(elev.pop());											// Move passengers into the hallway one at a time
-			System.out.println(passengerInfo(hallway.peek(), true));
+	private void checkPassFloor(int floor) {
+		int currentPass = elev.size();
+		int passInHallway = 0;
+		if (!elev.isEmpty()) {
+			for (int i=0; i<currentPass; i++) {							// Iterate over passengers in elevator
+				hallway.push(elev.pop());											// Move passengers into the hallway one at a time
+
+				if (hallway.peek().getFloorOut() == floor) {	// Check floor against floorOut for passenger in hallway
+					System.out.println(passengerInfo(						// If this is their floorOut, print their name
+							hallway.peek(), true));									//   # of temp exits, and have them leave
+					hallway.pop();
+				}
+				passInHallway = hallway.size();
 			
-			if (hallway.peek().getFloorOut() == floor) {	// Check floor against floorOut for passenger in hallway
-				hallway.pop();															// If this is their floorOut, have them leave
 			}
+		
+			for (int i=0; i<passInHallway; i++) {						// Iterate over passengers in hallway
+				elev.push(hallway.pop());											// Move passengers who temporarily exited back into the elevator
+				elev.peek().incrementTempExits();							// Increment the tempExit count of each passenger re-entering
 			
-		}
 		
-		for (int i=0; i<elev.size(); i++) {							// Iterate over passengers in hallway
-			elev.push(hallway.pop());											// Move passengers who temporarily exited back into the elevator
-			elev.peek().incrementTempExits();							// Increment the tempExit count of each passenger re-entering
-			System.out.println(passengerInfo(elev.peek(), false));
-		
+			}
 		}
 	}
 	
-	private void newPassengers(Stack<Passenger> elev, ProcessInputLines input) {
-		if (elev.isEmpty() || elev.size() < elev.getLimit()) {
-			//elev.push(new Passenger(input.getLineFromInput()));
-			buttonsPressed[elev.peek().getFloorOut()-1] = true;
+	/**
+	 * Adds a new passenger to the elevator provided there's space, otherwise prints
+	 * 	a message stating that passenger took the stars
+	 * @param pass New passenger to wants to enter the elevator
+	 * @return
+	 */
+	private void newPassenger(Stack<Passenger> data) {
+		if (elev.size() < elev.getLimit()) {
+			elev.push(data.pop());
+			System.out.println(passengerInfo(elev.peek(), false));
+		} else {
+			System.out.println("The elevator is full! " + data.pop().getName() +" is unable to get on and is taking the stairs");
 		}
+		
 		
 	}
 	
@@ -133,8 +146,19 @@ public class Elevator {
 		}
 	}
 	
-	public int getNumPassengers() {
-		return numPassengers;
+	private boolean checkIncomingPass(Stack<Passenger> data) {
+		try{
+			if (currentFloor == data.peek().getFloorIn()) {
+				return true;
+			}
+		} catch (java.util.NoSuchElementException e) {
+			System.out.println("Final passenger!");
+		}
+		return false;
 	}
 	
+	public boolean passInElevator() {
+		return elev.isEmpty();
+	}
+
 }
