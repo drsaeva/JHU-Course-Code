@@ -15,14 +15,14 @@ public class Elevator {
 	 * 
 	 * @param input 
 	 */
-	public Elevator(Stack<Passenger> data) {
-		while (!data.isEmpty()) {	
+	public Elevator() {
+		/*while (!data.isEmpty()) {	
 			if (!elev.isEmpty()) {
 				checkPassFloor(currentFloor);
 			}
 			
-			while (checkIncomingPass(data)) {
-						newPassenger(data);
+			while (checkIncomingPass(pass)) {
+						newPassenger(pass);
 			
 			}
 			
@@ -30,7 +30,7 @@ public class Elevator {
 		}
 		checkPassFloor(currentFloor);
 		elevatorRoute();
-		System.out.println("Simulation complete.");
+		System.out.println("Simulation complete.");*/
 	}
 	
 
@@ -86,14 +86,14 @@ public class Elevator {
 	 * @param hallway Hallway into which passengers exit the elevator
 	 * @param floor 
 	 */
-	private void checkPassFloor(int floor) {
+	public void checkPassFloor() {
 		int currentPass = elev.size();
 		int passInHallway = 0;
 		if (!elev.isEmpty()) {
 			for (int i=0; i<currentPass; i++) {							// Iterate over passengers in elevator
 				hallway.push(elev.pop());											// Move passengers into the hallway one at a time
 
-				if (hallway.peek().getFloorOut() == floor) {	// Check floor against floorOut for passenger in hallway
+				if (hallway.peek().getFloorOut() == currentFloor) {	// Check floor against floorOut for passenger in hallway
 					System.out.println(passengerInfo(						// If this is their floorOut, print their name
 							hallway.peek(), true));									//   # of temp exits, and have them leave
 					hallway.pop();
@@ -117,12 +117,13 @@ public class Elevator {
 	 * @param pass New passenger to wants to enter the elevator
 	 * @return
 	 */
-	private void newPassenger(Stack<Passenger> data) {
+	private void newPassenger(Passenger pass) {
 		if (elev.size() < elev.getLimit()) {
-			elev.push(data.pop());
+			elev.push(pass);
 			System.out.println(passengerInfo(elev.peek(), false));
 		} else {
-			System.out.println("The elevator is full! " + data.pop().getName() +" is unable to get on and is taking the stairs");
+			System.out.println("The elevator is full! " + pass.getName() +" is unable to get "
+					+ "on and is taking the stairs");
 		}
 		
 		
@@ -146,19 +147,49 @@ public class Elevator {
 		}
 	}
 	
-	private boolean checkIncomingPass(Stack<Passenger> data) {
+	/**
+	 * Container method for try-catch setup - catches NSEException thrown for the final passenger
+	 * Examines if the passenger object currently at the top of the data stack
+	 *   should enter the elevator
+	 * @param data Passenger object at the top of the input data stack
+	 * @return true If the passenger object should be entering the elevator at this floor
+	 * 				 false Otherwise
+	 */
+	public void incomingPass(Passenger pass) {
 		try{
-			if (currentFloor == data.peek().getFloorIn()) {
-				return true;
-			}
+			//if (currentFloor == pass.getFloorIn()) {
+				//return true;
+				newPassenger(pass);
+			//}
 		} catch (java.util.NoSuchElementException e) {
 			System.out.println("Final passenger!");
 		}
+		//return false;
+	}
+	
+	/**
+	 * Public getter to check if an external passenger object was added to the elevator stack
+	 * @param pass External passenger object
+	 * @return true If external passenger object is found in elevator stack
+	 *         false Otherwise
+	 */
+	public boolean passInElevator(Passenger pass) {
+		if (elev.peek().getName().equals(pass.getName())) {
+			return true;
+		}
+		
 		return false;
 	}
 	
-	public boolean passInElevator() {
-		return elev.isEmpty();
+	public boolean passengersAtFloor(Passenger pass) {
+			if (currentFloor == pass.getFloorIn()) {
+				return true;
+			}	
+
+		return false;
 	}
 
+	public boolean elevatorEmpty() {
+		return elev.isEmpty();
+	}
 }
