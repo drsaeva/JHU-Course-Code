@@ -1,3 +1,11 @@
+/*
+ * TODO Refactoring:
+ * 				- make elevator currentFloor publicly accessible (getter)
+ * 				- need to check new data passenger's floor globally
+ * 						- current code makes passengers prioritize entry into elevator 1
+ * 						- should they prioritize comfort over a specific elevator?
+ */
+
 package Elevator;
 
 import java.util.Scanner;
@@ -24,15 +32,41 @@ public class StartElevatorSimulation {
 			data.push(temp.pop());
 		}
 		
-		Elevator elev1 = new Elevator(data);
-		//Elevator elev2 = new Elevator();//data);
+		Elevator elev1 = new Elevator();
+		Elevator elev2 = new Elevator();//data);
 		
-		/*while (!data.isEmpty()) {
-			Passenger pass = data.pop();
-			elev1.elevatorRoute(pass);
-		}*/
+		while (!data.isEmpty()) {
+			if (!elev1.elevatorEmpty()) {
+				System.out.println("Elevator 1: ");
+				elev1.checkPassFloor();
+			}
+			
+			while (!data.isEmpty() && elev1.passengersAtFloor(data.peek())) {
+				elev1.incomingPass(data.pop());
+			}
+			
+			elev1.elevatorRoute();
+			
+			if (!elev2.elevatorEmpty()) {
+				System.out.println("Elevator 2: ");
+				elev2.checkPassFloor();
+			}
+			
+			while (!data.isEmpty() && elev2.passengersAtFloor(data.peek())) {
+				elev2.incomingPass(data.pop());
+			}
+			
+			elev2.elevatorRoute();
+		}
+		
+		while (!elev1.elevatorEmpty()) {
+			elev1.checkPassFloor();
+			elev1.elevatorRoute();
+		}
+		System.out.println("Simulation complete!");
 		
 	}
+	
 	
 	/**
 	 * Queries user for the size of the elevator simulation input data. Catches invalid
