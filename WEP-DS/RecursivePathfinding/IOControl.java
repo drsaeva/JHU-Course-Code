@@ -1,35 +1,53 @@
 package lab2;
 
 import java.io.File;
+import java.io.PrintWriter;
 import java.util.Scanner;
+import java.io.FileNotFoundException;
 
 public class IOControl {
 	private File inputFile;
 	private File outputFile;
-	Scanner s;
+	Scanner i;
+	PrintWriter o;
 	
 	public IOControl(String input, String output) {
+		inputFile = new File(input);
+		outputFile = new File(output);
+		
 		try {
-			s = new Scanner(inputFile);
-		} catch (java.io.FileNotFoundException e) {
+			i = new Scanner(inputFile);
+		} catch (FileNotFoundException e) {
 			System.out.println("Bad input file path.");
 		}
 		
-		if (s.hasNext()) {
-			
+		try {
+			o = new PrintWriter(outputFile);
+		} catch (FileNotFoundException e) {
+			System.out.println("Bad output file path.");
 		}
+		
 	}
 	
-	public String[] inputLine() {
-		String[] line = s.nextLine().split(" ");
+	/**
+	 * Takes input line, splits on whitespace, and returns the resulting String array
+	 * @return String[] generated from input line
+	 */
+	public String[] inputLineArr() {
+		String[] line = {};
+		
+		if (i.hasNext()) {
+			line = i.nextLine().split(" ");
+		}
 		return line;
 	}
 	
-	private void getInputFile(String input) {
-		inputFile = new File(input);
+	/**
+	 * Public access for close() methods for Scanner/PrintWriter
+	 */
+	public void closeIO() {
+		i.close();
+		o.close();
 	}
 	
-	private void getOutputFile(String output) {
-		outputFile = new File(output);
-	}
 }
