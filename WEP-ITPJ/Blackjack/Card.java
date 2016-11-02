@@ -1,4 +1,4 @@
-package Blackjack;
+package blackjackGame;
 
 /**
  * This Class represents a card and its properties as it exists in a standard 52-card deck. 
@@ -14,7 +14,13 @@ public class Card {
 	private String name;
 	private int value;
 	
-	
+	/**
+	 * Constructor to generate a new card object based on a passed-in suit and name.
+	 * 	Suits provide no function aside from arbitrarily helping to set the maximum
+	 * 	number of a give card name (ie 2, Jack) in the deck to 4.
+	 * @param suit	String describing the suit of the card
+	 * @param name	String describing the face of the card (ie 2, Jack)
+	 */
 	public Card(String suit, String name) {
 		setSuit(suit);
 		setName(name);
@@ -37,6 +43,13 @@ public class Card {
 		return name;
 	}
 	
+	/**
+	 * Sets the value of a given card based on the name of that card.
+	 * 	If the card's name is able to be parsed into integer format, the
+	 * 	value is determined from that. If the card is an Ace, it defaults 
+	 *  to 11. Otherwise its value is set to 10.
+	 * @param name String representation of the card's name (i.e. Jack)
+	 */
 	private void setValue(String name) {
 		try {
 			this.value = Integer.valueOf(name);
@@ -47,8 +60,6 @@ public class Card {
 			} else {
 				this.value = 10;
 			}
-			
-			
 		}
 	}
 	
@@ -65,7 +76,7 @@ public class Card {
 	 * 	called on an Ace and depending on the boolean value of the passed-in arg
 	 * @param aceHigh boolean argument for whether a high value of the ace is desired
 	 */
-	public void changeAceVal(boolean aceHigh) {
+	public void highAceVal(boolean aceHigh) {
 		if (this.name.equals("Ace") && aceHigh) {
 			this.value = 11;
 		} else if (this.name.equals("Ace") && !aceHigh) {
