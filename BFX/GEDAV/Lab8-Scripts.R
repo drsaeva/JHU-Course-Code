@@ -30,5 +30,6 @@ fib.50.km <- kmeans(fib.50.pca$rotation[,1:2], centers=3, iter.max = 20)
 par(mfrow = c(2, 1))
 plot(fib.50.pca$rotation[,1:2], col=fib.50.km$cluster, cex=1,
 	main="Scatter Plot of fibroEset classification labels from\nk-means-clustering, k = 3",
-	xlab = "P1", ylab = "P2")
+	xlab = "P1", ylab = "P2", type="n")
 points(fib.50.km$centers, col = 1:3, cex = 2.5)
+text(fib.50.pca$rotation[,1:2], labels=fib.50.cols)
