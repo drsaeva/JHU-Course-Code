@@ -1,24 +1,39 @@
-# Uses RNAseq data (https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE86004) from Kim, Lu, and Zhang's 2016 Cell Reports pub on 
-# mechanisms driving cytokine induction of ovarian clear cell carcinomas (DOI: 10.1016/j.celrep.2016.09.003). 
+# Obstructive sleep apnea response to continuous positive airway pressure treatment: leukocytes
+#
+# Summary: Analysis of peripheral blood leukocytes from patients with severe obstructive sleep apnea 
+#    (OSA) before and after continuous positive airway pressure (CPAP) treatment. Results provide 
+#    insight into the system-wide molecular response of OSA patients to CPAP therapy.
+#
+# Platform: GPL6244: [HuGene-1_0-st] Affymetrix Human Gene 1.0 ST Array [transcript (gene) version]
+#
+# Citation: Gharib SA, Seiger AN, Hayes AL, Mehra R et al. Treatment of obstructive sleep apnea alters 
+#    cancer-associated transcriptional signatures in circulating leukocytes. Sleep 2014 Apr 1;37(4):709-14,
+#    714A-714T. PMID: 24688164
 
-# RNAseq data used is the FKPM xlsx file sourced from GEO. Due to Excel formatting issues (conversion of month-date similar 
-# combinations into 'mm/dd/yyyy' format), some gene names had to be reabstracted from the surrounding gene names. File was
-# then saved as a tab-delimited .txt file for loading into R
-
-setwd("mydir")
-ova <- read.table("ova_dat.txt", row.names=1, header=T)
+# load Bioconductor, install GEOquery for loading GEO
+source("http://www.bioconductor.org/biocLite.R")
+biocLite("GEOquery")
+# or if GEOquery is already installed
+library(GEOquery)
+# load GEO soft file
+setwd("D:/Data")
+gds <- getGEO(filename='GDS5358.soft.gz')
+colnames(Table(gds))
+Table(gds)[1:10,1:6]
+eset <- GDS2eSet(gds, do.log2=TRUE)
+gds.exp <- exprs(eset)
 
 # correlation plot
 
 library(gplots)
-ova.cor <- cor(ova)
+gds.cor <- cor(gds.exp)
 
 layout(matrix(c(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 2, 2), 8, 2, byrow=TRUE))
 par(oma=c(5, 7, 1, 1))
-leg <- seq(min(ova.cor, na.rm=TRUE), max(ova.cor, na.rm=TRUE), length=10)
-image(ova.cor, main="Correlation plot of Renal Epithelium-derived Normal and Tumor Samples", axes=F)
-axis(1, at=seq(0, 1, length=ncol(ova.cor)), label=dimnames(ova.cor)[[2]], cex.axis=0.9, las=2)
-axis(2, at=seq(0, 1, length=ncol(ova.cor)), label=dimnames(ova.cor)[[2]], cex.axis=0.9, las=2)
+leg <- seq(min(gds.cor, na.rm=TRUE), max(gds.cor, na.rm=TRUE), length=10)
+image(gds.cor, main="Correlation plot of SA Pt Samples before/after COPD treatment", axes=F)
+axis(1, at=seq(0, 1, length=ncol(gds.cor)), label=dimnames(gds.cor)[[2]], cex.axis=0.9, las=2)
+axis(2, at=seq(0, 1, length=ncol(gds.cor)), label=dimnames(gds.cor)[[2]], cex.axis=0.9, las=2)
 
 par(mar=rep(2, 4))
 image(as.matrix(leg), axes=F)
@@ -26,37 +41,21 @@ tmp <- round(leg, 2)
 axis(1,at=seq(0, 1, length=length(leg)), labels=tmp, cex.axis=1)
 
 # avg corr plot
-ova.average <- apply(ova.cor, 1, mean) 
+ave <- apply(gds.cor, 1, mean) 
 par(oma=c(3, 0.1, 0.1, 0.1)) 
-plot(c(1, length(ova.average)), range(ova.average), type="n", main="Average Correlation Plot", xlab="", ylab ="Average Correlation (r)", axes=F) 
-points(ova.average, bg="Red", col=1, pch=21, cex=1.25) 
-axis(1, at = c(1:length(ova.average)), labels = dimnames(ova)[[2]], las=2, cex.lab=0.4, 
+plot(c(1, length(ave)), range(ave), type="n", main="Average Correlation Plot for SA Pt Samples", xlab="", ylab ="Average Correlation (r)", axes=F) 
+points(ave, bg="Red", col=1, pch=21, cex=1.25) 
+axis(1, at = c(1:length(ave)), labels = dimnames(gds.exp)[[2]], las=2, cex.lab=0.4, 
 cex.axis=0.6) 
 axis(2) 
 abline(v = seq(0.5, 62.5, 1)) 
 
-# plot density plots of log ratios for each normalization for subject 4
-plotM<-function(l) {
- plot(density(log10(ova[,l]+1)), ylim=c(0,3.5), xlim=c(-1,5), col=l)
-}
-par(mfrow=c(2,2))
+# subset object to dataframe, columns only represent samples (Table(gds) produces two cols with gene id#s/identifiers)
+gds.nex <- Table(gds)[,3:38]
+rownames(gds.nex) <- Table(gds)[,2]
 
-for (i in 1:14) {
-  plotM(i)
-}
 
-ova1.log <- log10(ova[,1]+1)
-ova2.log <- log10(ova[,2]+1)
-ova3.log <- log10(ova[,3]+1)
-ova4.log <- log10(ova[,4]+1)
-ova5.log <- log10(ova[,5
-plot(density(ova1.log), main="Density Plot of Gene FKPMs per Sample", 
-ylim=c(min(ova1.log),max(ova1.log)), xlim=c(-1, 5), col=1)
-lines(density(ova2.log), col="blue")
-lines(density(ova3.log), col="red") 
-lines(density(ova4.log), col="green") 
-       
-#################################
+
 
 # heirarchical clustering dendrogram
 rcc.transposed <- t(rcc) 
