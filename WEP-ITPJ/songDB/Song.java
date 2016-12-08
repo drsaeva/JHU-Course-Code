@@ -1,4 +1,14 @@
-package songDB;
+/**
+ * Class Song
+ * @author David Saeva
+ * @version v1.0
+ * 
+ * Contains all code required to represent a Song drawn from the SongDB file, including all representative parameters (itemcode, description
+ * 	artist, album, and price).
+ * 
+ */
+
+package SongDB;
 
 public class Song {
 	
@@ -8,14 +18,12 @@ public class Song {
 	private String album;
 	private double price;
 
-	public Song() {
-		this.code = "";
-		this.desc = "";
-		this.artist = "";
-		this.album = "";
-		this.price = 0.0;
-	}
-
+	
+	/**
+	 * Constructor for a Song object
+	 * @param data Array containing String values for item code, description, artist, and album
+	 * @param price Double representation of the price of this song
+	 */
 	public Song(String[] data, double price) {
 		this.code = data[0];
 		this.desc = data[1];
