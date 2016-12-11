@@ -51,9 +51,20 @@ axis(2)
 abline(v = seq(0.5, 62.5, 1)) 
 
 # subset object to dataframe, columns only represent samples (Table(gds) produces two cols with gene id#s/identifiers)
+# set row names in subset equal to id#'s - identifying names can't be used due to duplications
 gds.nex <- Table(gds)[,3:38]
-rownames(gds.nex) <- Table(gds)[,2]
+rownames(gds.nex) <- Table(gds)[,1]
 
+# filter out genes with avg expression < 50
+gds.rm <- rowMeans(gds.nex)
+gds.rm.50 <- gds.rm[gds.rm > 50]
+gds.nex.50 <- gds.nex[gds.rm.50, ]
+
+# filtered out 8248 genes below avg expression val 
+> nrow(gds.nex.50)
+[1] 25049
+> nrow(gds.nex)
+[1] 33297
 
 
 
