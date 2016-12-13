@@ -23,6 +23,8 @@ Table(gds)[1:10,1:6]
 eset <- GDS2eSet(gds, do.log2=TRUE)
 gds.exp <- exprs(eset)
 
+#### OUTLIER DETECTION ######
+
 # correlation plot
 
 library(gplots)
@@ -50,10 +52,29 @@ cex.axis=0.6)
 axis(2) 
 abline(v = seq(0.5, 62.5, 1)) 
 
+# cv vs mean plot
+gds.mean <- apply(log2(gds), 2, mean) 
+gds.stdev <- sqrt(apply(log2(gds), 2, var)) 
+gds.cv <- gds.stdev/gds.mean 
+plot(gds.mean, gds.cv, main ="Sample Coeff. of Variance v. Mean", xlab="Mean", ylab="CV", col="Red", cex=1.5, type="n") 
+points(gds.mean, gds.cv, bg ="Blue", col=1, pch=21) 
+text(gds.mean, gds.cv, label=dimnames(gds)[[2]], pos=1, cex=0.5) 
+
+#### FEATURE SELECTION #####
+
 # subset object to dataframe, columns only represent samples (Table(gds) produces two cols with gene id#s/identifiers)
 # set row names in subset equal to id#'s - identifying names can't be used due to duplications
 gds.nex <- Table(gds)[,3:38]
 rownames(gds.nex) <- Table(gds)[,1]
+
+# set class vectors
+
+pre <- c(1,3,5,7,9,11,13,15,17,19,21,23,25,27,29,31,33,35)
+post <- c(2,4,6,8,10,12,14,16,18,20,22,24,26,28,30,32,34,36)
+
+classes <- colnames(gds.nex)
+pre.cl <- classes[pre]
+post.cl <- classes[post]
 
 # filter out genes with avg expression < 50
 gds.rm <- rowMeans(gds.nex)
@@ -66,19 +87,64 @@ gds.nex.50 <- gds.nex[gds.rm.50, ]
 > nrow(gds.nex)
 [1] 33297
 
+# log2 e values
+gds.log2 = log2(gds.nex.50)
 
+# t-test all genes
+t.test.all.genes <- function(x, d1, d2){
+	x1 <- x[d1]
+	x2 <- x[d2]
+	x1 <- as.numeric(x1)
+	x2 <- as.numeric(x2)
+	t.out <- t.test(x1, x2, alternative="two.sided", var.equal=T)
+	out <- as.numeric(t.out$p.value)
+	return(out)
+}
 
-# heirarchical clustering dendrogram
-rcc.transposed <- t(rcc) 
-rcc.dist <- dist(rcc.transposed, method = "euclidean") 
-rcc.clusters <- hclust(rcc.dist, method = "single") 
-plot(rcc.clusters, main="Dendrogram of Renal Epithelial Sample Clustering", xlab="Samples", ylab="Distance between clusters", cex = 0.75) 
+p.values <- apply(gds.log2, 1, t.test.all.genes, d1=pre.cl, d2=post.cl)
 
-# cv vs mean plot
-rcc.mean <- apply(log2(rcc), 2, mean) 
-rcc.stdev <- sqrt(apply(log2(rcc), 2, var)) 
-rcc.cv <- rcc.stdev/rcc.mean 
-plot(rcc.mean, rcc.cv, main ="Renal Epithelial Sample Coeff. of Variance v. Mean", xlab="Mean", ylab="CV", col="Red", cex=1.5, type="n") 
-points(rcc.mean, rcc.cv, bg ="Blue", col=1, pch=21) 
-text(rcc.mean, rcc.cv, label=dimnames(rcc)[[2]], pos=1, cex=0.5) 
+# plot p-values, histogram p-values
+plot(
+	p.raw, type = "b", pch = 1, col = "Pink",
+	xlab="Genes",
+	ylab="P-values",
+	main="Raw P-values for All Genes From SA Pt PBLs\n"
+)
 
+hist(
+  p.values, col="lightblue",	xlab="p-values", 
+  main="P-values of probesets to Pre- \n and Post-CPAP 
+  treated SA patient PBLs", 
+  cex.main=0.9
+)
+abline(v=0.05, col=2, lwd=2)
+
+# fold change 
+pre.mean <- apply(gds.log2[, pre.cl], 1, mean, na.rm=T)
+post.mean <- apply(gds.log2[, post.cl], 1, mean, na.rm=T)
+fold <- pre.mean - post.mean
+
+# fold change histogram
+hist(
+	fold, col="Green", xlab="Log2 Fold Change", ylab="Frequency",
+	main = paste("Histogram of Fold change values for SA Pt PBLs")
+)
+
+# transform p-values, make volcano plot, draw two lines at 2 and -2
+p.values.trans <- (-1*log10(p.values))
+
+plot(range(p.values.trans), range(fold), type="n", xlab="-1 * log10 (P-Value)", 
+ylab="Fold Change", main="Volcano plot of fold changes between pre- and post-CPAP
+  treatment in SA Pt PBLs")
+
+points(p.values.trans, fold, col=1, bg=1, pch=21)
+
+points(p.values.trans[(p.values.trans > -log10(0.05) & fold > 0.1)], fold[(
+p.values.trans > -log10(0.05) & fold > 0.1)], col=1, bg=2, pch=21)
+
+points(p.values.trans[(p.values.trans > -log10(0.05) & fold < -0.1)], fold[(
+p.values.trans > -log10(0.05) & fold < -0.1)], col=1, bg=3, pch=21)
+
+abline(v= -log10(0.05))
+abline(h= -0.1)
+abline(h= 0.1)
