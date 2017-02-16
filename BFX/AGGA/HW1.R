@@ -63,10 +63,30 @@ return(list("p-values"=o.pvals, "fold change"=log2(x)))
 }
 
 # intersect annotations & exon matrix, subset each by intersection results
+# get unique transcript ids
 ex.probes <- intersect(exon[,1], rownames(ex_annot))
 ex_annot.sub <- ex_annot[ex.probes,]
 exon.lab <- exon.dat
 row.names(exon.lab) <- exon[,1]
 exon.sub <- exon.lab[ex.probes,]
+unique.ids <- unique(as.character(ex_annot.sub$transcript_cluster_id))
 
-clon
+ex.ge.dif <- matrix(data=NA, nrow=nrow(exon.sub), ncol=ncol(exon.sub))
+colnames(ex.ge.dif) <- colnames(exon.dat)
+ex.ge.pvals <- ex.ge.dif
+
+# prepare new matrices
+exon.means <- matrix(data=NA, nrow=nrow(exon.sub), ncol=5)
+colnames(exon.means) <- c("Control", "Clotrimazole", "Flunarizine", "Control-Chl.", "Chlorhexidine")
+row.names(exon.means) <- row.names(exon.sub)
+
+gene.means <- matrix(data=NA, nrow=nrow(gene.dat), ncol=5)
+colnames(gene.means) <- c("Control", "Clotrimazole", "Flunarizine", "Control-Chl.", "Chlorhexidine")
+row.names(gene.means) <- row.names(gene.dat)
+
+#  generate new smaller matrices for p-values
+for (i in 1:5) {
+  j <- i*3 - 2
+  exon.means[,i] <- rowMeans(exon.sub[, j:i], na.rm=T)
+  gene.means[,i] <- rowMeans(gene.dat[, j:i], na.rm=T)
+}
