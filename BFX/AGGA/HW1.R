@@ -43,7 +43,7 @@ plot(e.pca$x[,1:2], main="Two principal components of exon matrix data")
 # takes transcript cluster values, exon probes for this transcript cluster, and classification vector
 exon.ni <- function(genex,exonx,rx) {
 
-ni <- t(t(exonx)-genex)
+ni <- t(exonx)-genex
 ttest <- t(apply(ni,1,t.two,sam=as.logical(r),v=F))
 return(ttest)
 
@@ -55,10 +55,10 @@ t.two <- function(x,sam,v=F) {
 
 x <- as.numeric(x)
 out <- t.test(as.numeric(x[sam]),as.numeric(x[!sam]),alternative="two.sided",var.equal=v)
-o.pvals <- as.numeric(c(out$statistic,out$p.value,out$conf.int[1],out$conf.int[2]))
-names(o.pvals) <- c("test_statistic","pv","lower_ci","upper_ci")
+o <- as.numeric(c(out$statistic,out$p.value,out$conf.int[1],out$conf.int[2]))
+names(o) <- c("test_statistic","pv","lower_ci","upper_ci")
 
-return(list("p-values"=o.pvals, "fold change"=log2(x)))
+return(o)
 
 }
 
@@ -76,17 +76,34 @@ colnames(ex.ge.dif) <- colnames(exon.dat)
 ex.ge.pvals <- ex.ge.dif
 
 # prepare new matrices
+samples <- c("Control", "Clotrimazole", "Flunarizine", "Control-Chlor", "Chlorhexidine")
+
 exon.means <- matrix(data=NA, nrow=nrow(exon.sub), ncol=5)
-colnames(exon.means) <- c("Control", "Clotrimazole", "Flunarizine", "Control-Chl.", "Chlorhexidine")
+colnames(exon.means) <- samples
 row.names(exon.means) <- row.names(exon.sub)
 
 gene.means <- matrix(data=NA, nrow=nrow(gene.dat), ncol=5)
-colnames(gene.means) <- c("Control", "Clotrimazole", "Flunarizine", "Control-Chl.", "Chlorhexidine")
+colnames(gene.means) <- samples
 row.names(gene.means) <- row.names(gene.dat)
 
-#  generate new smaller matrices for p-values
+exon.fin <- matrix(data=NA, nrow=nrow(exon.sub), ncol=2)
+gene.fin <- matrix(data=NA, nrow=nrow(gene.dat), ncol=2)
+
+
+#  generate new smaller matrices from rowMeans of each sample class for p-values
 for (i in 1:5) {
-  j <- i*3 - 2
-  exon.means[,i] <- rowMeans(exon.sub[, j:i], na.rm=T)
-  gene.means[,i] <- rowMeans(gene.dat[, j:i], na.rm=T)
+  j <- i*3 
+  k <- j - 2
+  exon.means[,i] <- rowMeans(exon.sub[, k:j], na.rm=T)
+  gene.means[,i] <- rowMeans(gene.dat[, k:j], na.rm=T)
 }
+
+# generate foldchange matrix of treatment/control from rowMeans matrix
+gene.fin <- intersect(gene.means, rownames(exon.probes))
+exon.fin[,1] <- log2((exon.means[,2]-gene.means[,2])/(exon.means[,2]-gene.means[,2]))
+exon.fin[,2] <- log2((exon.means[,5]-gene.means[,5])/(exon.means[,4]-gene.means[,4]))
+
+colnames(exon.fin) <- c(samples[2], samples[5])
+row.names(exon.fin) <- row.names(exon.sub)
+
+ t(exon.means)-gene.means
