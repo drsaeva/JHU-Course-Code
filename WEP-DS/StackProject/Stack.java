@@ -47,3 +47,41 @@ public class Stack<T> {
 		if (isEmpty()) throw new java.util.NoSuchElementException("Stack underflow!");
 		return arr[top];
 	}
+
+	/**
+	 * Gets the current amount of Objects in the stack
+	 * @return {@link #top}
+	 */
+	public int size() {
+		return top+1;
+	}
+
+	/**
+	 * Sets the maximum amount of Objects allowed in the stack
+	 * @param size
+	 */
+	private void setLimit(int size) {
+		limit = size;
+	}
+	
+	/**
+	 * Gets the maximum amount of Objects allowed in the stack
+	 * @param size
+	 */
+	public int getLimit() {
+		return limit;
+	}
+
+	/**
+	 * States whether there are passengers in the elevator.
+	 * @return true if there are no passengers in the elevator;
+	 *         false otherwise
+	 */
+	public boolean isEmpty() {
+		if (top == -1) {
+			return true;
+		}
+		return false;
+	}
+    
+}
