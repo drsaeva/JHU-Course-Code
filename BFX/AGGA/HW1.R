@@ -32,34 +32,34 @@ ex_annot <- read.table("D:/Data/cel/HuEx-1_0-st-v2.na24.hg18.probeset_abbr.csv",
 gene.dat <- gene[,2:16]
 exon.dat <- exon[,2:16]
 
+par(mfrow=c(2,1))
 g.pca <- prcomp(t(gene.dat))
-plot(g.pca$x[,1:2], main="Two principal components of gene matrix data")
+plot(g.pca$x[,1:2], col=1,pch=c(rep(0,3),rep(1,3),rep(2,3),rep(3,3),rep(4,3)),
+     main="Two principal components of gene matrix data")
+legend("bottomleft", pch=c(0:4), c("Ctrl","Clotrimazole","Flunarizine","Ctrl-Chlor","Chlorhexidine"))
 
 e.pca <- prcomp(t(exon.dat))
-plot(e.pca$x[,1:2], main="Two principal components of exon matrix data")
+plot(e.pca$x[,1:2], col=1,pch=c(rep(0,3),rep(1,3),rep(2,3),rep(3,3),rep(4,3)), 
+     main="Two principal components of exon matrix data")
+legend("bottomleft", pch=c(0:4), c("Ctrl","Clotrimazole","Flunarizine","Ctrl-Chlor","Chlorhexidine"))
 
 
 # exon ni value calculation and t-test function
 # takes transcript cluster values, exon probes for this transcript cluster, and classification vector
 exon.ni <- function(genex,exonx,rx) {
-
-ni <- t(exonx)-genex
-ttest <- t(apply(ni,1,t.two,sam=as.logical(r),v=F))
-return(ttest)
-
+  ni <- t(exonx)-genex
+  ttest <- t(apply(ni,1,t.two,sam=as.logical(r),v=F))
+  return(ttest)
 }
 
 #two-sample t-test function (called by an apply() function)
 
 t.two <- function(x,sam,v=F) {
-
-x <- as.numeric(x)
-out <- t.test(as.numeric(x[sam]),as.numeric(x[!sam]),alternative="two.sided",var.equal=v)
-o <- as.numeric(c(out$statistic,out$p.value,out$conf.int[1],out$conf.int[2]))
-names(o) <- c("test_statistic","pv","lower_ci","upper_ci")
-
-return(o)
-
+  x <- as.numeric(x)
+  out <- t.test(as.numeric(x[sam]),as.numeric(x[!sam]),alternative="two.sided",var.equal=v)
+  o <- as.numeric(c(out$statistic,out$p.value,out$conf.int[1],out$conf.int[2]),out$estimate[2]-out$estimate[1])
+  names(o) <- c("test_statistic","pv","lower_ci","upper_ci","fold_change")
+  return(o)
 }
 
 # intersect annotations & exon matrix, subset each by intersection results
@@ -75,35 +75,12 @@ ex.ge.dif <- matrix(data=NA, nrow=nrow(exon.sub), ncol=ncol(exon.sub))
 colnames(ex.ge.dif) <- colnames(exon.dat)
 ex.ge.pvals <- ex.ge.dif
 
-# prepare new matrices
-samples <- c("Control", "Clotrimazole", "Flunarizine", "Control-Chlor", "Chlorhexidine")
+# prepare new matrices for t test
+classes <- c(F,F,F,T,T,T)
+ni.results <- data.frame()
 
-exon.means <- matrix(data=NA, nrow=nrow(exon.sub), ncol=5)
-colnames(exon.means) <- samples
-row.names(exon.means) <- row.names(exon.sub)
-
-gene.means <- matrix(data=NA, nrow=nrow(gene.dat), ncol=5)
-colnames(gene.means) <- samples
-row.names(gene.means) <- row.names(gene.dat)
-
-exon.fin <- matrix(data=NA, nrow=nrow(exon.sub), ncol=2)
-gene.fin <- matrix(data=NA, nrow=nrow(gene.dat), ncol=2)
-
-
-#  generate new smaller matrices from rowMeans of each sample class for p-values
-for (i in 1:5) {
-  j <- i*3 
-  k <- j - 2
-  exon.means[,i] <- rowMeans(exon.sub[, k:j], na.rm=T)
-  gene.means[,i] <- rowMeans(gene.dat[, k:j], na.rm=T)
+# loop over clot samples
+for (i in 1:6) {
+  a <- exon.ni(genex=as.numeric(gene.dat[i]), exonx=exon.sub[unique.ids, i], rx=classes)
+  ni.results <- cbind(ni.results, a)
 }
-
-# generate foldchange matrix of treatment/control from rowMeans matrix
-gene.fin <- intersect(gene.means, rownames(exon.probes))
-exon.fin[,1] <- log2((exon.means[,2]-gene.means[,2])/(exon.means[,2]-gene.means[,2]))
-exon.fin[,2] <- log2((exon.means[,5]-gene.means[,5])/(exon.means[,4]-gene.means[,4]))
-
-colnames(exon.fin) <- c(samples[2], samples[5])
-row.names(exon.fin) <- row.names(exon.sub)
-
- t(exon.means)-gene.means
