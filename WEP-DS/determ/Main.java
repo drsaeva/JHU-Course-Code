@@ -22,6 +22,7 @@ public class Main {
 		Scanner readIn;
 		boolean goodMatrix = true;
 		double[][] newmat;
+		Matrix m;
 		
 		if (args.length < 1) {									// initialize Scanner by file path from args or by user entry if path not provided/bad
 			System.out.println("No input file path provided.");
@@ -54,7 +55,6 @@ public class Main {
 		if (!goodMatrix) System.exit(0);						// kill program if the header line shows this isn't a square matrix
 		
 		newmat = new double[dims[0]][dims[1]];					// otherwise make a new square matrix of the order provided
-		Matrix m = new Matrix(dims[0], dims[1]);
 		
 		for (int i=0; i<dims[0]; i++) {							// read over the input lines for the square matrix, checking them to make sure elements are numeric
 			String[] nextLine = readIn.nextLine().split(" ");
@@ -67,7 +67,7 @@ public class Main {
 			
 		}
 		
-		m.populateMatrix(newmat);								// populate the Matrix object and then print it out, then get the determinant and print it out
+		m = new Matrix(dims[0], dims[1], newmat);				// instantiate the Matrix object and then print it out, then get the determinant and print it out
 		System.out.println("\nThe matrix you've provided is:\n");
 		readIn.close();
 		
