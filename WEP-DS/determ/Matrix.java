@@ -13,6 +13,12 @@ public class Matrix {
 	private int cols;
 	private double mat[][];
 	
+	/**
+	 * Constructor. Generates a new Matrix object that encapsulates an empty double array
+	 * 	with r rows and c columns
+	 * @param r number of rows in the Matrix
+	 * @param c number of columns in the Matrix
+	 */
 	public Matrix(int r, int c, double[][] dat) {
 		this.rows = r;
 		this.cols = c;
@@ -54,8 +60,9 @@ public class Matrix {
 	}
 	
 	/**
-	 * Generates a minor of the Matrix this method is called on that through ignoring 
-	 * 	the elements located in the passed in row and column 
+	 * Generates a minor of the Matrix this method is called on that through ignoring the elements 
+	 * 	located in the passed in row and column. Returns null if the order of the parent matrice is less than 3,
+	 * 	since that results in a trivial or non-existent minor. 
 	 * @param o	order of the parent Matrix generating the minor
 	 * @param a	parent Matrix row to skip
 	 * @param b parent Matrix column to skip
