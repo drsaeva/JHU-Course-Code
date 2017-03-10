@@ -13,36 +13,20 @@ public class Matrix {
 	private int cols;
 	private double mat[][];
 	
-	/**
-	 * Constructor. Generates a new Matrix object that encapsulates an empty double array
-	 * 	with r rows and c columns
-	 * @param r number of rows in the Matrix
-	 * @param c number of columns in the Matrix
-	 */
-	public Matrix(int r, int c) {
+	public Matrix(int r, int c, double[][] dat) {
 		this.rows = r;
 		this.cols = c;
 		mat = new double[r][c];
-	
-	}
-	
-	/**
-	 * Simple method that populates the encapsulated array of the Matrix by iteration over 
-	 *  row/column combinations, using a passed in array to source element values. Provides
-	 *  error handling in the event that the Matrix is not square, as a determinant can not be
-	 *  found for non-square matrices.
-	 * @param m double[][] array containing the values that will populate the Matrix
-	 */
-	public void populateMatrix(double[][] m) {
-		if (this.rows == m.length) {
+		if (this.rows == dat.length) {
 			for (int i=0; i<rows; i++) {
 				for (int j=0; j<rows; j++) {
-					mat[i][j] = m[i][j];
+					mat[i][j] = dat[i][j];
 				}
 			}
 		} else {
 			System.out.println("Input matrix does not match number of rows/cols assigned.");
 		}
+	
 	}
 	
 	/**
@@ -78,23 +62,29 @@ public class Matrix {
 	 * @return Matrix object representing the minor
 	 */
 	public Matrix getMinor(int o, int a, int b) {
-		Matrix minor = new Matrix(o-1, o-1);			// new minor Matrix, order is 1 less than parent Matrix
+		Matrix minor;									// new minor Matrix, order is 1 less than parent Matrix
 		double[][] dat = new double[o-1][o-1];			// double array that will populate the minor Matrix object
 		int x=0;										// counter for row index in the double array
 		
-		for (int i=0; i<o; i++) {						// iterate over rows
-			int y=0;									// counter for column index in the double array
-			if (i==a) continue;							// if this row was passed in to be skipped, just increment i - otherwise iterate over columns then increment x and i
+		if (o < 3) {									// return null for matrices with an order less than 3, the minor of an order 2 matrix is one element
+			return null;
 			
-			for (int j=0; j<o; j++) {					// iterate over columns
-				if (j==b) continue;						// if this column was passed in to be skipped, just increment j
-				dat[x][y] = getArray()[i][j];			// otherwise, set element at x,y in minor equal to element at i,j in parent and increment y
-				y++;
-			}
+		} else {
 			
-			x++;
-		}							
+			for (int i=0; i<o; i++) {					// iterate over rows
+				int y=0;								// counter for column index in the double array
+				if (i==a) continue;						// if this row was passed in to be skipped, just increment i - otherwise iterate over columns then increment x and i
+			
+				for (int j=0; j<o; j++) {				// iterate over columns
+					if (j==b) continue;					// if this column was passed in to be skipped, just increment j
+					dat[x][y] = getArray()[i][j];		// otherwise, set element at x,y in minor equal to element at i,j in parent and increment y
+					y++;
+				}
+				x++;
+			}							
 		
+			minor = new Matrix(o-1, o-1, dat);						// instantiate the new minor Matrix with the data from the array and return it
+		}
 		/*System.out.println("\nThe minor matrix is:\n");	// bug tracker, prints out the minor matrix
 		for (int c=0; c<minor.getRows(); c++) {
 			for (int d=0; d<minor.getCols(); d++) {
@@ -103,7 +93,6 @@ public class Matrix {
 			System.out.println();
 		}*/
 		
-		minor.populateMatrix(dat);						// populate the new minor Matrix with the data from the array and return it
 		return minor;
 	}
 	
