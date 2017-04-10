@@ -44,3 +44,10 @@ fc.fpkm[1:10]
 fc.tpm <- sort(fc.tpm, decreasing=T)
 fc.fpkm[1:10]
 
+## bash code, samtools
+# sort/index
+samtools sort -o thyroid_sort.bam -@ 8 thyroid.bam
+samtools index thyroid_sort.bam -@ 8 
+
+samtools sort -o testes_sort.bam -@ 8 testes.bam
+samtools index testes_sort.bam -@ 8 
