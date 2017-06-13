@@ -1,3 +1,6 @@
+/*
+Creates new tables
+*/
 CREATE TABLE species (
 taxonomy_id INT(7) NOT NULL,
 genus VARCHAR(20) NOT NULL,
