@@ -4,8 +4,8 @@ import sys
 
 print("\nThis script requires you to pass in the file path to the genome FASTA you"
 	" wish to analyze as the first argument.\nIf you do not specify a file via "
-	"arguments, the script will automatically use 'e_coli_k12_dh10b.faa' and\n"
-	"assume its presence in your home directory.\n")
+	"arguments, the script will automatically use 'e_coli_k12_dh10b.faa' and "
+	"assume\nits presence in your home directory.\n")
 
 # file import and associated error handling
 if len(sys.argv) > 1:
