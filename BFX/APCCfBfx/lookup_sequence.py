@@ -23,6 +23,7 @@ except OSError as e:
 acc = raw_input("Please provide an NCBI protein accession number to look for.\n")
 
 # check genome file for accession, print all lines in accession until next gene
+acc_not_found = True
 for line in ecoli:
 	if acc in line:
 		print '\n',line
@@ -30,4 +31,8 @@ for line in ecoli:
 		while not '>' in line:
 			print line
 			line = next(ecoli)
+		acc_not_found = False
 		break
+
+if acc_not_found:
+	Print "Accession not found in fasta file!"
