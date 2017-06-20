@@ -35,4 +35,4 @@ for line in ecoli:
 		break
 
 if acc_not_found:
-	Print "Accession not found in fasta file!"
+	print "\nAccession not found in fasta file!\n"
